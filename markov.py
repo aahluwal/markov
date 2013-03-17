@@ -1,65 +1,64 @@
-#!/usr/bin/env python
+#!/usr/bin/env pyhon
 import sys
 from sys import argv
 import random
 
-def make_chains(corpus):
+def make_chains(corpus, ngram_size):
     """Takes an input text as a string and returns a dictionary of
     markov chains."""
-    l_text = corpus.split()
-    chains = {}
-    value =[]
+    word_list = corpus.split()
     index = 0
-    for index in range(0, len(l_text)-2):
-        tuple1  = (l_text[index], l_text[index + 1])
-        if tuple1 not in chains:
-            value = [l_text[index + 2]]
-            chains[tuple1] = value
-            index += 1
-        else:
-            chains[tuple1].append(l_text[index + 2]) 
-            index += 1
-    return chains 
+    chains = {}
+    for word in word_list[0:-(ngram_size)]:
+      n_gram = tuple(word_list[index:index+ngram_size])
+      word_after_ngram = word_list[index+ngram_size]  
+      if n_gram not in chains:
+        chains[n_gram] = [word_after_ngram]
+      else:
+        chains[n_gram].append(word_after_ngram)
+      index +=1
+    return chains  
 
-def make_text(chains):
+
+def make_text(chains, output_length):
     """Takes a dictionary of markov chains and returns random text
-    based off an original text."""
-    text = ""
-    l_pairs = chains.keys()
-    r_int = random.randint(0, len(l_pairs))
-    next_tuple = l_pairs[r_int]
-    print next_tuple
-    value = chains[next_tuple]
-    for items in value:
-        v_int = random.randint(0, len(value))
-        word = value[v_int]
-    print word
+     based off an original text."""
+    seed = random.choice(chains.keys()) 
+    final_list = list(seed)
+    seed_length = len(seed)
 
 
-    return "Here's some random text."
+    while len(final_list) < output_length:
+      new_seed = final_list[-(seed_length):]
+      new_tuple_key = tuple(new_seed)
+      final_list.append(random.choice(chains[new_tuple_key]))
+
+    final = " ".join(final_list)
+    print final     
+
+
+
+
+
+
+
+
+
 
 def main():
-    #args = sys.argv
+    #script, filename = sysrgv
 
     # Change this to read input_text from a file
     script, filename = argv
 
     in_file = open(filename)
     input_text = in_file.read()
-    a = make_chains(input_text)
-    print a
-
-    b = make_text(a)
-    print b
-
+    chains = make_chains(input_text, 2) 
+    make_text(chains, len(input_text))
     in_file.close()
 
 if __name__ == "__main__":
     main()
 
-'''
-    chain_dict = make_chains(input_text)
-    random_text = make_text(chain_dict)
-    print random_text
-'''
+
 
